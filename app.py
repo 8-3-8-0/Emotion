@@ -11,8 +11,6 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPooling2D
 import base64
 
-
-
 df = pd.read_csv("muse_v3.csv")
 
 df['link'] = df['lastfm_url']
