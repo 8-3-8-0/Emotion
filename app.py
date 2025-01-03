@@ -190,6 +190,8 @@ st.markdown("<h5 style='text-align: center; color: grey;'><b>Click on the name o
             , unsafe_allow_html=True)
 
 col1,col2,col3 = st.columns(3)
+st_placeholder = st.empty() 
+status_placeholder = st.empty()
 
 list = []
 with col1:
@@ -204,8 +206,6 @@ with col2:
             
             count = 0
             list.clear()
-            st_placeholder = st.empty() 
-            status_placeholder = st.empty()
 
             status_placeholder.text("Initializing scanning and processing...")
 
