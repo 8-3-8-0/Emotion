@@ -13,7 +13,7 @@ import base64
 
 
 
-df = pd.read_csv("E:\\Emotion-based-music-recommendation-system-main\\muse_v3.csv")
+df = pd.read_csv(".\\muse_v3.csv")
 
 df['link'] = df['lastfm_url']
 df['name'] = df['track']
@@ -160,7 +160,7 @@ model.add(Dropout(0.5))
 model.add(Dense(7, activation='softmax'))
 
 
-model.load_weights('E:\\Emotion-based-music-recommendation-system-main\\model.h5')
+model.load_weights('.\\model.h5')
 
 emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
@@ -169,7 +169,7 @@ cv2.ocl.setUseOpenCL(False)
 cap = cv2.VideoCapture(0)
 
 print("Loading Haarcascade Classifier...")
-face = cv2.CascadeClassifier('E:\\Emotion-based-music-recommendation-system-main\\haarcascade_frontalface_default.xml')
+face = cv2.CascadeClassifier('.\\haarcascade_frontalface_default.xml')
 if face.empty():
     print("Haarcascade Classifier failed to load.")
 else:
@@ -200,12 +200,18 @@ with col2:
         count = 0
         list.clear()
         st_placeholder = st.empty() 
+        status_placeholder = st.empty()
+
+        status_placeholder.text("Initializing scanning and processing...")
 
         while True:
 
             ret, frame = cap.read()
             if not ret:
+                status_placeholder.text("Error: Unable to access the webcam.")
                 break
+            
+            status_placeholder.text("Scanning for faces and processing emotions...")
             
             face = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")          
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)        
@@ -230,13 +236,17 @@ with col2:
                 st_placeholder.text(f"Detected Emotion: {detected_emotion}")
 
             if cv2.waitKey(1) & 0xFF == ord('s'):
+                status_placeholder.text("Scanning stopped by user.")
                 break
             if count >= 20:
+                status_placeholder.text("Scanning complete: Processed 20 frames.")
                 break
+
         cap.release()
         cv2.destroyAllWindows()
 
         list = pre(list)
+        status_placeholder.text("Processing complete.")
         st.success(" emotions successfully detected") 
         
 
