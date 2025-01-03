@@ -196,58 +196,69 @@ with col1:
     pass
 with col2:
     if st.button('SCAN EMOTION(Click here)'):
-
-        count = 0
-        list.clear()
-        st_placeholder = st.empty() 
-        status_placeholder = st.empty()
-
-        status_placeholder.text("Initializing scanning and processing...")
-
-        while True:
-
-            ret, frame = cap.read()
-            if not ret:
-                status_placeholder.text("Error: Unable to access the webcam.")
-                break
+        try:
+        # Initialize camera or video capture
+            cap = cv2.VideoCapture(0)  # Replace with a video file or URL if needed
+            if not cap.isOpened():
+                raise RuntimeError("Unable to access the camera or video feed.")
             
-            status_placeholder.text("Scanning for faces and processing emotions...")
-            
-            face = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")          
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)        
-            faces = face.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)          
-            count = count + 1
+            count = 0
+            list.clear()
+            st_placeholder = st.empty() 
+            status_placeholder = st.empty()
 
-            for (x, y, w, h) in faces:               
-                cv2.rectangle(frame, (x, y - 50), (x + w, y + h + 10), (255, 0, 0), 2)               
-                roi_gray = gray[y:y + h, x:x + w]               
-                cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)             
-                prediction = model.predict(cropped_img)             
-                max_index = int(np.argmax(prediction))
+            status_placeholder.text("Initializing scanning and processing...")
 
-                list.append(emotion_dict[max_index])
-                detected_emotion = emotion_dict[max_index]
+            while True:
 
-                cv2.putText(frame, emotion_dict[max_index], (x + 20, y - 60), 
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)              
-                cv2.imshow('Video', cv2.resize(frame, (1000, 700), interpolation=cv2.INTER_CUBIC))
+                ret, frame = cap.read()
+                if not ret:
+                    status_placeholder.text("Error: Unable to access the webcam.")
+                    break
+                
+                status_placeholder.text("Scanning for faces and processing emotions...")
+                
+                face = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")          
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)        
+                faces = face.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)          
+                count = count + 1
 
-                # Update the Streamlit display with the current detected emotion
-                st_placeholder.text(f"Detected Emotion: {detected_emotion}")
+                for (x, y, w, h) in faces:               
+                    cv2.rectangle(frame, (x, y - 50), (x + w, y + h + 10), (255, 0, 0), 2)               
+                    roi_gray = gray[y:y + h, x:x + w]               
+                    cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)             
+                    prediction = model.predict(cropped_img)             
+                    max_index = int(np.argmax(prediction))
 
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                status_placeholder.text("Scanning stopped by user.")
-                break
-            if count >= 20:
-                status_placeholder.text("Scanning complete: Processed 20 frames.")
-                break
+                    list.append(emotion_dict[max_index])
+                    detected_emotion = emotion_dict[max_index]
 
-        cap.release()
-        cv2.destroyAllWindows()
+                    cv2.putText(frame, emotion_dict[max_index], (x + 20, y - 60), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)              
+                    cv2.imshow('Video', cv2.resize(frame, (1000, 700), interpolation=cv2.INTER_CUBIC))
 
-        list = pre(list)
-        status_placeholder.text("Processing complete.")
-        st.success(" emotions successfully detected") 
+                    # Update the Streamlit display with the current detected emotion
+                    st_placeholder.text(f"Detected Emotion: {detected_emotion}")
+
+                if cv2.waitKey(1) & 0xFF == ord('s'):
+                    status_placeholder.text("Scanning stopped by user.")
+                    break
+                if count >= 20:
+                    status_placeholder.text("Scanning complete: Processed 20 frames.")
+                    break
+
+            cap.release()
+            cv2.destroyAllWindows()
+
+            list = pre(list)
+            status_placeholder.text("Processing complete.")
+            st.success("Emotions successfully detected")
+    
+        except RuntimeError as e:
+            status_placeholder.error(f"Error: {e}")
+    
+        except Exception as e:
+            status_placeholder.error(f"An unexpected error occurred: {e}")
         
 
 with col3:
