@@ -247,13 +247,12 @@ with col2:
                     status_placeholder.text("Scanning complete: Processed 20 frames.")
                     break
 
-            cap.release()
-            cv2.destroyAllWindows()
+                cap.release()
+                cv2.destroyAllWindows()
 
-            list = pre(list)
-            status_placeholder.text("Processing complete.")
-            st.success("Emotions successfully detected")
-    
+                list = pre(list)
+                status_placeholder.text("Processing complete.")
+                st.success("Emotions successfully detected")
         except RuntimeError as e:
             status_placeholder.error(f"Error: {e}")
     
